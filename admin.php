@@ -15,9 +15,10 @@
 // if we submiting a music request
 print_r($_POST);
 if(array_key_exists("submit",$_POST)) {
+  $name = substr($_POST['submit'],0,-4);
   $current = array(
     "file"=>"./musics/".$_POST['submit'],
-    "name"=>$_POST['submit'],
+    "name"=>$name,
     "start"=>microtime(true)+(int)$_POST['delay']
   );
   file_put_contents("timing.json",json_encode($current));
@@ -37,11 +38,13 @@ if(array_key_exists("submit",$_POST)) {
     <?php
       $files = scandir('./musics/');
       foreach($files as $file) {
+        $name = substr($file,0,-4);
+        if(strlen($name)) {
     ?>  
       <li>
-        <input type="submit" name="submit" value="<?php echo $file; ?>">
+        <button name="submit" type="submit" value="<?php echo $file; ?>"><?php echo $name; ?></button>
       </li>
-    <?php  } ?>
+    <?php }  } ?>
   </ul>
   </form>
 
