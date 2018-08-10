@@ -16,6 +16,8 @@
 print_r($_POST);
 if(array_key_exists("submit",$_POST)) {
   $name = substr($_POST['submit'],0,-4);
+  $name=str_replace("_"," ",$name);
+  $name=str_replace("-"," ",$name);
   $current = array(
     "file"=>"./musics/".$_POST['submit'],
     "name"=>$name,

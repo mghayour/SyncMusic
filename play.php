@@ -21,6 +21,11 @@
     text-align: center;
     margin: 20px;
   }
+  .status {
+  font-size: 12px;
+    color: #777;
+    text-align: center;
+  }
 
   #canvas {
     position: fixed;
@@ -42,6 +47,7 @@
 
   <h1 id="name" class="musicName"></h1>
   <h2 id="time" class="musicTime" ></h2>
+  <h3 id="status" class="status" ></h2>
 
   <audio id="music">
     <source id="musicSource" src="" type="audio/mpeg">
@@ -53,16 +59,22 @@
     var nameElem = document.getElementById("name");
     var timeElem = document.getElementById("time");
     var musicElem = document.getElementById("music");
+    var statusElem = document.getElementById("status");
     var musicSrcElem = document.getElementById('musicSource');
+
+    function setStatus(str) {
+      statusElem.innerHTML = str;
+      console.log(str);
+    }
 
     setInterval(() => {
       if(playing.time) {
-        timeElem.innerHTML = calcMusicTime().toFixed(1);
+        timeElem.innerHTML = calcMusicTime().toFixed(0);
       }
-    }, 100);
+    }, 1000);
 
     setInterval(() => {
-      // suto synchronize
+      // auto synchronize
       syncWithServer();
     }, 3000);
 
@@ -74,24 +86,32 @@
     }
     function syncWithServer()
     {
-        var xmlHttp = new XMLHttpRequest();
 
-        var reqDelay = Date.now();
+        // get music
+        var xmlHttp = new XMLHttpRequest();
         xmlHttp.open( "GET", "./timing.php", false ); // false for synchronous request
         xmlHttp.send( null );
-        reqDelay = Date.now() - reqDelay;
-        reqDelay = reqDelay/1000 /2; // sec, one side
-        console.log("reqDelay: "+reqDelay);
-
         var res = xmlHttp.responseText;
         playing = JSON.parse(res);
-        playing.diff = playing.time + reqDelay - localTime();
+
+
+        // sync server time
+        var reqDelay = Date.now();
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.open( "GET", "./serverTime.php", false ); // false for synchronous request
+        xmlHttp.send( null );
+        playing.time = parseFloat(xmlHttp.responseText);
+        reqDelay = Date.now() - reqDelay;
+        reqDelay = reqDelay/1000 /2; // sec, one side
+        setStatus("reqDelay: "+reqDelay.toFixed(3));
+
+        playing.diff = playing.time - reqDelay - localTime();
         nameElem.innerHTML = playing.name;
 
 
         var timeDiff = musicElem.currentTime-calcMusicTime();
         if(Math.abs(timeDiff)>1) {
-          console.log("Changing music: "+timeDiff);
+          setStatus("Changing music: "+timeDiff.toFixed(3));
           musicSrcElem.src = playing.file;
           musicElem.load();
           musicElem.currentTime = calcMusicTime();
@@ -102,11 +122,16 @@
           }
         } else {
 
-          if(Math.abs(timeDiff)>0.02) {
-            console.log("sync just time diff: "+timeDiff);
-            musicElem.currentTime = calcMusicTime();
+          if(Math.abs(timeDiff)>0.05) {
+            setStatus("sync just time diff: "+timeDiff.toFixed(3));
+            // musicElem.pause();
+            // setTimeout(() => {
+              musicElem.currentTime = calcMusicTime();
+              // musicElem.play();              
+            // }, 50);
+            
           } else {
-            console.log("time diff is small: "+timeDiff);
+            setStatus("time diff is small: "+timeDiff.toFixed(3));
           }
         }
     }
@@ -141,7 +166,6 @@
     var x = 0;
 
     function renderFrame() {
-      requestAnimationFrame(renderFrame);
 
       x = 0;
 
@@ -149,6 +173,8 @@
 
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // return;
 
       for (var i = 0; i < bufferLength; i++) {
         barHeight = dataArray[i];
@@ -162,6 +188,7 @@
 
         x += barWidth + 1;
       }
+      requestAnimationFrame(renderFrame);
     }
 
     renderFrame();
