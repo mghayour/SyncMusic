@@ -3,8 +3,8 @@ this project help you play a same music in same time across some devices
 
 
 ## requirements
-PHP server (like xampp) on server machine
-browser for playing musics
+* PHP server (like xampp) on server machine
+* browser for playing musics
 
 ## steps
 1. run a php server
@@ -13,4 +13,6 @@ browser for playing musics
 4. open `play.php` in browser of your devices
 5. selected music should play at same time, enjoy ☺
 
+## notice
+* during to issue in `Android` devices, auto play will not work. you need to `click on black area in page` for playing music (playing audio needs user action in android)
 

@@ -38,9 +38,9 @@
 </head>
 <body>
 
-  <canvas id="canvas"></canvas>
+  <canvas id="canvas" onclick="musicElem.play();"></canvas>
 
-  <h1 id="name" class="musicName" ></h1>
+  <h1 id="name" class="musicName"></h1>
   <h2 id="time" class="musicTime" ></h2>
 
   <audio id="music">
